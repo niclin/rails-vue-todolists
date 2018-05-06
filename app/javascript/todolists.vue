@@ -17,7 +17,11 @@
       <tbody>
         <tr v-for="todo in list" >
           <td>{{ todo.id }}</td>
-          <td>{{ todo.item }}</td>
+          <td>
+            <span @click="changeTodo(todo)" v-show="todo.editable"> {{ todo.item }}</span>
+            <input v-show="!todo.editable" v-model="todo.item" >
+            <button v-show="!todo.editable" @click="updateTodo(todo)" class="btn btn-primary">Update Todo</button>
+          </td>
           <td>
             <button @click="deleteTodo(todo.id)" class="btn btn-primary">Delete Todo</button>
           </td>
@@ -56,10 +60,25 @@ export default {
       .catch((error) => console.log('Got a problem' + error));
     },
 
+    changeTodo(todoItem) {
+      todoItem.editable = !todoItem.editable
+    },
+
+    updateTodo(todoItem) {
+      this.$http.put('todolists/'+ todoItem.id, { item: todoItem.item }, {})
+        .then((res) => this.fetchTodoLists())
+        .catch((error) => console.log('Got a problem' + error));
+    },
+
     fetchTodoLists: function() {
        const resource = this.$resource('/todolists.json/{ id }');
        resource.get().then(function(response){
-         this.list = response.data
+
+        const newList = response.data.map((oldItem) => {
+          return { ...oldItem, editable: true }
+         });
+
+         this.list = newList
        });
     }
   }
