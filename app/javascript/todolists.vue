@@ -1,5 +1,21 @@
 <template>
   <div>
+    <h1>My tasks</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="todo in list" >
+          <td>{{ todo.id }}</td>
+          <td>{{ todo.item }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -7,15 +23,24 @@
 export default {
   data: function () {
     return {
-      message: "Hello Vue!"
+      list: [
+        { id: 1, item: "Foo" },
+        { id: 2, item: "Bar" }
+      ]
+    }
+  },
+
+  created: function() {
+   this.fetchTodoLists();
+  },
+
+  methods: {
+    fetchTodoLists: function() {
+       const resource = this.$resource('/todolists.json/{ id }');
+       resource.get().then(function(response){
+         this.list = response.data
+       });
     }
   }
 }
 </script>
-
-<style scoped>
-p {
-  font-size: 2em;
-  text-align: center;
-}
-</style>
